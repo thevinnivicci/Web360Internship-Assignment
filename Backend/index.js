@@ -3,20 +3,11 @@ import mongoose from "mongoose";
 import cors from "cors";
 import { User } from "./models/user.model.js";
 import dotenv from "dotenv";
+
 dotenv.config();
-
 const app = express();
-
 app.use(express.json());
 app.use(cors());
-
-// mongoose.connect(process.env.MONGODB_URI, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-//   // Remove the following lines, as they are not supported in the new MongoDB driver
-//   // useCreateIndex: true,
-//   // useFindAndModify: false,
-// });
 
 mongoose.connect(process.env.MONGODB_URI);
 
@@ -44,7 +35,7 @@ app.post("/login", async (req, res) => {
     if (user) {
       // Use bcrypt or another secure method for password comparison
       if (user.password === password) {
-        res.json("Success");
+        res.json({ message: "Success", userId: user._id });
       } else {
         res.json("Password is incorrect");
       }
@@ -55,6 +46,28 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "Login failed" });
   }
 });
+
+app.get("/profile", async (req, res) => {
+  try {
+    const userId = req.query.userId;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const userProfile = await User.findById(userId);
+
+    if (userProfile) {
+      res.json(userProfile);
+    } else {
+      res.status(404).json({ error: "Profile not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ error: "Failed to fetch user profile" });
+  }
+});
+
 
 const PORT = process.env.PORT || 5173;
 

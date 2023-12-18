@@ -11,17 +11,18 @@ const LoginFormComponents = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     axios
-      .post("http://localhost:8000/login", { email, password })
-      .then((result) => {
-        console.log(result);
-        if (result.data === "Success") {
-          toast.success("Login succesfull");
-          navigate("/");
-        } else {
-          toast.error("invalid credential");
-        }
-      })
-      .catch((error) => console.log(error));
+    .post("http://localhost:8000/login", { email, password })
+    .then((result) => {
+      console.log(result);
+      if (result.data.message === "Success") {
+        toast.success("Login successful");
+        localStorage.setItem("userId", result.data.userId); // Store the user ID
+        navigate("/profile");
+      } else {
+        toast.error("Invalid credentials");
+      }
+    })
+    .catch((error) => console.log(error));
   };
 
   return (
